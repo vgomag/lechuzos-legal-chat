@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Legal - INNOVI PRO</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="INNOVI PRO" class="sidebar-logo">
+                <h2>INNOVI PRO</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="chat.html" class="nav-item active">
+                    <span class="icon">💬</span>
+                    <span>Chat Legal</span>
+                </a>
+                <a href="dashboard.html" class="nav-item">
+                    <span class="icon">📊</span>
+                    <span>Historial</span>
+                </a>
+                <a href="admin.html" class="nav-item admin-only">
+                    <span class="icon">⚙️</span>
+                    <span>Administración</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span class="user-avatar">👤</span>
+                    <div class="user-details">
+                        <p class="user-name" id="userName"></p>
+                        <p class="user-role" id="userRole"></p>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="btn btn-secondary btn-sm">Cerrar Sesión</button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Asistente Legal</h1>
+                <p>Consulta documentos jurídicos de la empresa</p>
+            </header>
+            
+            <!-- Quick Prompts -->
+            <div class="quick-prompts">
+                <button class="prompt-btn" data-prompt="¿Cuáles son las políticas de contratación?">
+                    📋 Políticas de contratación
+                </button>
+                <button class="prompt-btn" data-prompt="¿Qué dice el reglamento sobre vacaciones?">
+                    🏖️ Reglamento de vacaciones
+                </button>
+                <button class="prompt-btn" data-prompt="Resume los contratos vigentes">
+                    📄 Contratos vigentes
+                </button>
+                <button class="prompt-btn" data-prompt="¿Cuáles son las obligaciones laborales?">
+                    ⚖️ Obligaciones laborales
+                </button>
+                <button class="prompt-btn" data-prompt="Explica las cláusulas de confidencialidad">
+                    🔒 Cláusulas de confidencialidad
+                </button>
+            </div>
+            
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <div id="chatMessages" class="chat-messages">
+                    <div class="welcome-message">
+                        <h3>👋 Bienvenido al Asistente Legal de INNOVI PRO</h3>
+                        <p>Puedo ayudarte a consultar información sobre documentos jurídicos de la empresa.</p>
+                        <p>Selecciona una consulta sugerida o escribe tu pregunta.</p>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                        <span></span><span></span><span></span>
+                    </div>
+                    
+                    <form id="chatForm" class="chat-form">
+                        <input type="text" id="chatInput" placeholder="Escribe tu consulta legal aquí..." 
+                               autocomplete="off" required>
+                        <button type="submit" class="btn btn-primary">
+                            <span>Enviar</span>
+                            <span class="icon">📤</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>

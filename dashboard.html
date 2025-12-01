@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial - INNOVI PRO</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar (mismo que chat.html) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="INNOVI PRO" class="sidebar-logo">
+                <h2>INNOVI PRO</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="chat.html" class="nav-item">
+                    <span class="icon">💬</span>
+                    <span>Chat Legal</span>
+                </a>
+                <a href="dashboard.html" class="nav-item active">
+                    <span class="icon">📊</span>
+                    <span>Historial</span>
+                </a>
+                <a href="admin.html" class="nav-item admin-only">
+                    <span class="icon">⚙️</span>
+                    <span>Administración</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span class="user-avatar">👤</span>
+                    <div class="user-details">
+                        <p class="user-name" id="userName"></p>
+                        <p class="user-role" id="userRole"></p>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="btn btn-secondary btn-sm">Cerrar Sesión</button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Historial de Conversaciones</h1>
+                <p>Revisa tus consultas anteriores</p>
+            </header>
+            
+            <div class="dashboard-content">
+                <div class="filters">
+                    <input type="text" id="searchInput" placeholder="Buscar en historial..." 
+                           class="search-input">
+                    <select id="dateFilter" class="filter-select">
+                        <option value="all">Todas las fechas</option>
+                        <option value="today">Hoy</option>
+                        <option value="week">Esta semana</option>
+                        <option value="month">Este mes</option>
+                    </select>
+                </div>
+                
+                <div id="conversationsList" class="conversations-list">
+                    <!-- Las conversaciones se cargarán dinámicamente -->
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Cargar historial desde localStorage
+        function loadConversations() {
+            const conversations = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            const container = document.getElementById('conversationsList');
+            
+            if (conversations.length === 0) {
+                container.innerHTML = '<p class="empty-state">No hay conversaciones guardadas</p>';
+                return;
+            }
+            
+            container.innerHTML = conversations.map((conv, index) => `
+                <div class="conversation-card">
+                    <div class="conversation-header">
+                        <span class="conversation-date">${new Date(conv.timestamp).toLocaleString('es-ES')}</span>
+                    </div>
+                    <div class="conversation-body">
+                        <p class="conversation-question"><strong>Pregunta:</strong> ${conv.question}</p>
+                        <p class="conversation-answer"><strong>Respuesta:</strong> ${conv.answer.substring(0, 200)}...</p>
+                    </div>
+                    <button class="btn btn-sm" onclick="viewFullConversation(${index})">Ver completa</button>
+                </div>
+            `).join('');
+        }
+        
+        function viewFullConversation(index) {
+            const conversations = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            const conv = conversations[index];
+            alert(`Pregunta: ${conv.question}\n\nRespuesta: ${conv.answer}`);
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadConversations);
+    </script>
+</body>
+</html>
