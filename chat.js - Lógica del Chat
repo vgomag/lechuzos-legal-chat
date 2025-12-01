@@ -1,0 +1,148 @@
+// Sistema de chat
+class ChatSystem {
+    constructor() {
+        this.sessionId = this.generateSessionId();
+        this.chatHistory = [];
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+        this.loadChatHistory();
+    }
+    
+    setupEventListeners() {
+        const chatForm = document.getElementById('chatForm');
+        if (chatForm) {
+            chatForm.addEventListener('submit', (e) => this.handleSendMessage(e));
+        }
+        
+        // Quick prompts
+        document.querySelectorAll('.prompt-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const prompt = btn.getAttribute('data-prompt');
+                document.getElementById('chatInput').value = prompt;
+                this.handleSendMessage(new Event('submit'));
+            });
+        });
+    }
+    
+    async handleSendMessage(e) {
+        e.preventDefault();
+        
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        
+        if (!message) return;
+        
+        // Limpiar input
+        input.value = '';
+        
+        // Mostrar mensaje del usuario
+        this.addMessage(message, 'user');
+        
+        // Mostrar indicador de escritura
+        this.showTypingIndicator();
+        
+        try {
+            // Enviar mensaje al webhook de n8n
+            const response = await this.sendToWebhook(message);
+            
+            // Ocultar indicador de escritura
+            this.hideTypingIndicator();
+            
+            // Mostrar respuesta del asistente
+            this.addMessage(response, 'assistant');
+            
+            // Guardar en historial
+            this.saveChatHistory(message, response);
+            
+        } catch (error) {
+            this.hideTypingIndicator();
+            this.addMessage('Lo siento, ocurrió un error al procesar tu consulta. Por favor, intenta nuevamente.', 'assistant');
+            console.error('Error:', error);
+        }
+    }
+    
+    async sendToWebhook(message) {
+        const response = await fetch(CONFIG.WEBHOOK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'sendMessage',
+                sessionId: this.sessionId,
+                chatInput: message
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        
+        const data = await response.json();
+        return data.output || data.response || 'No se recibió respuesta';
+    }
+    
+    addMessage(text, sender) {
+        const messagesContainer = document.getElementById('chatMessages');
+        
+        // Remover mensaje de bienvenida si existe
+        const welcomeMsg = messagesContainer.querySelector('.welcome-message');
+        if (welcomeMsg) {
+            welcomeMsg.remove();
+        }
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        
+        const avatar = sender === 'user' ? '👤' : '🤖';
+        const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            <div class="message-avatar">${avatar}</div>
+            <div class="message-content">
+                <p>${text}</p>
+                <div class="message-time">${time}</div>
+            </div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    showTypingIndicator() {
+        document.getElementById('typingIndicator').style.display = 'flex';
+    }
+    
+    hideTypingIndicator() {
+        document.getElementById('typingIndicator').style.display = 'none';
+    }
+    
+    saveChatHistory(question, answer) {
+        const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        history.push({
+            timestamp: new Date().toISOString(),
+            question: question,
+            answer: answer,
+            user: auth.currentUser.username
+        });
+        localStorage.setItem('chatHistory', JSON.stringify(history));
+    }
+    
+    loadChatHistory() {
+        // Cargar historial previo si existe
+        const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        this.chatHistory = history;
+    }
+    
+    generateSessionId() {
+        return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+}
+
+// Inicializar sistema de chat
+if (document.getElementById('chatForm')) {
+    const chat = new ChatSystem();
+}

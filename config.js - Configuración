@@ -1,0 +1,33 @@
+// Configuración de la aplicación
+const CONFIG = {
+    // URL del webhook de n8n 
+    WEBHOOK_URL: 'https://fiscalito.app.n8n.cloud/webhook/5f1c0c82-0ff9-40c7-9e2e-b1a96ffe24cd/chat',
+    
+    // Usuarios del sistema (en producción, esto debería estar en un backend)
+    USERS: [
+        {
+            username: 'admin',
+            password: 'admin123',
+            name: 'Administrador',
+            role: 'Administrador',
+            isAdmin: true
+        },
+        {
+            username: 'legal1',
+            password: 'legal123',
+            name: 'María García',
+            role: 'Abogada Senior',
+            isAdmin: false
+        },
+        {
+            username: 'legal2',
+            password: 'legal123',
+            name: 'Juan Pérez',
+            role: 'Abogado Junior',
+            isAdmin: false
+        }
+    ],
+    
+    // Configuración de sesión
+    SESSION_DURATION: 24 * 60 * 60 * 1000, // 24 horas en milisegundos
+};

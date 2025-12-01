@@ -1,0 +1,131 @@
+// Sistema de autenticación
+class AuthSystem {
+    constructor() {
+        this.currentUser = null;
+        this.init();
+    }
+    
+    init() {
+        // Verificar si hay una sesión activa
+        const savedSession = localStorage.getItem('userSession');
+        if (savedSession) {
+            const session = JSON.parse(savedSession);
+            if (this.isSessionValid(session)) {
+                this.currentUser = session.user;
+                this.redirectToDashboard();
+            } else {
+                this.logout();
+            }
+        }
+        
+        // Configurar event listeners
+        this.setupEventListeners();
+    }
+    
+    setupEventListeners() {
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+        }
+        
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => this.logout());
+        }
+        
+        // Actualizar información del usuario en la UI
+        this.updateUserUI();
+    }
+    
+    handleLogin(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const remember = document.getElementById('remember').checked;
+        
+        const user = CONFIG.USERS.find(u => u.username === username && u.password === password);
+        
+        if (user) {
+            const session = {
+                user: {
+                    username: user.username,
+                    name: user.name,
+                    role: user.role,
+                    isAdmin: user.isAdmin
+                },
+                timestamp: Date.now(),
+                remember: remember
+            };
+            
+            localStorage.setItem('userSession', JSON.stringify(session));
+            this.currentUser = session.user;
+            window.location.href = 'chat.html';
+        } else {
+            this.showError('Usuario o contraseña incorrectos');
+        }
+    }
+    
+    logout() {
+        localStorage.removeItem('userSession');
+        localStorage.removeItem('chatHistory');
+        this.currentUser = null;
+        window.location.href = 'index.html';
+    }
+    
+    isSessionValid(session) {
+        if (!session.remember) {
+            const elapsed = Date.now() - session.timestamp;
+            return elapsed < CONFIG.SESSION_DURATION;
+        }
+        return true;
+    }
+    
+    redirectToDashboard() {
+        if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+            window.location.href = 'chat.html';
+        }
+    }
+    
+    updateUserUI() {
+        if (!this.currentUser) return;
+        
+        const userNameEl = document.getElementById('userName');
+        const userRoleEl = document.getElementById('userRole');
+        
+        if (userNameEl) userNameEl.textContent = this.currentUser.name;
+        if (userRoleEl) userRoleEl.textContent = this.currentUser.role;
+        
+        // Ocultar opciones de admin si no es admin
+        if (!this.currentUser.isAdmin) {
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+    }
+    
+    showError(message) {
+        const errorEl = document.getElementById('errorMessage');
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 5000);
+        }
+    }
+    
+    requireAuth() {
+        if (!this.currentUser) {
+            window.location.href = 'index.html';
+        }
+    }
+}
+
+// Inicializar sistema de autenticación
+const auth = new AuthSystem();
+
+// Proteger páginas que requieren autenticación
+if (!window.location.pathname.includes('index.html')) {
+    auth.requireAuth();
+}
